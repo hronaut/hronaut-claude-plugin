@@ -1,6 +1,6 @@
-// Copies the Hronaut skill and license from the newest hronaut/hronaut release into the plugin and, when either
-// changed, bumps the plugin's patch version and adds a changelog entry. Fails when the app no longer matches what the
-// headers helpers assume. Writes `changed`, `tag` and `version` to $GITHUB_OUTPUT when it is set.
+// Copies the Hronaut skill from the newest hronaut/hronaut release into the plugin and, when it changed, bumps the
+// plugin's patch version and adds a changelog entry. Fails when the app no longer matches what the headers helpers
+// assume. Writes `changed`, `tag` and `version` to $GITHUB_OUTPUT when it is set.
 import { appendFile, readFile, writeFile } from 'node:fs/promises'
 
 const APP = 'hronaut/hronaut'
@@ -34,21 +34,21 @@ if (broken.length > 0) {
   process.exit(1)
 }
 
-const copies = [
-  ['skills/hronaut/SKILL.md', ['plugins/hronaut/skills/hronaut/SKILL.md'], 'the Hronaut skill'],
-  ['LICENSE', ['LICENSE', 'plugins/hronaut/LICENSE'], 'the license']
-]
+// The plugin, the skill's copy included, is MIT-licensed, while the app's copy names the app's license.
+function asMit(skill) {
+  const end = skill.indexOf('\n---', 3)
+  if (!skill.startsWith('---') || end < 0) throw new Error('The Hronaut skill has no frontmatter')
+  const frontmatter = skill.slice(0, end)
+  const licensed = /^license:/m.test(frontmatter) ? frontmatter.replace(/^license:.*$/m, 'license: MIT') : `${frontmatter}\nlicense: MIT`
+  return licensed + skill.slice(end)
+}
+
+const SKILL = 'plugins/hronaut/skills/hronaut/SKILL.md'
 const updated = []
-for (const [source, targets, name] of copies) {
-  const text = await file(source)
-  let changed = false
-  for (const target of targets) {
-    if ((await readFile(target, 'utf8')) !== text) {
-      await writeFile(target, text)
-      changed = true
-    }
-  }
-  if (changed) updated.push(name)
+const skill = asMit(await file('skills/hronaut/SKILL.md'))
+if ((await readFile(SKILL, 'utf8')) !== skill) {
+  await writeFile(SKILL, skill)
+  updated.push('the Hronaut skill')
 }
 
 let version = JSON.parse(await readFile(MANIFEST, 'utf8')).version
