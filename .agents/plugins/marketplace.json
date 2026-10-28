@@ -7,8 +7,9 @@
     {
       "name": "hronaut",
       "source": {
-        "source": "local",
-        "path": "./plugins/hronaut-codex"
+        "source": "git-subdir",
+        "url": "https://github.com/hronaut/hronaut-codex-plugin.git",
+        "path": "plugins/hronaut"
       },
       "policy": {
         "installation": "AVAILABLE",

@@ -2,7 +2,7 @@
   "name": "hronaut-claude-plugin",
   "private": true,
   "type": "module",
-  "description": "Hronaut's plugins for Claude Code and Codex: the Hronaut MCP server and the Hronaut skill.",
+  "description": "Hronaut's plugin for Claude Code: the Hronaut MCP server and the Hronaut skill.",
   "homepage": "https://hronaut.dev",
   "license": "SEE LICENSE IN LICENSE",
   "engines": {

@@ -1,6 +1,6 @@
 name: Sync from Hronaut
 
-# Keeps the plugins' skill and license the same as in the newest Hronaut release, as a new patch version of each.
+# Keeps the plugin's skill and license the same as in the newest Hronaut release, as a new patch version.
 on:
   schedule:
     - cron: '23 6 * * *'
@@ -26,20 +26,19 @@ jobs:
         run: node .github/scripts/sync-from-app.mjs
         env:
           GITHUB_TOKEN: ${{ github.token }}
-      # A push with this workflow's token doesn't start CI, so the checks run here first, with Codex installed for the
-      # Codex plugin's end-to-end test.
+      # A push with this workflow's token doesn't start CI, so the checks run here first.
       - if: steps.sync.outputs.changed == 'true'
-        run: npm ci && npm install --no-save @openai/codex@0.165.0 && npm test
+        run: npm ci && npm test
       - if: steps.sync.outputs.changed == 'true'
         run: npx --yes @anthropic-ai/claude-code@2.1.312 plugin validate --strict plugins/hronaut
       - if: steps.sync.outputs.changed == 'true'
         env:
           TAG: ${{ steps.sync.outputs.tag }}
-          RELEASE: ${{ steps.sync.outputs.release }}
+          VERSION: ${{ steps.sync.outputs.version }}
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add plugins/hronaut plugins/hronaut-codex LICENSE CHANGELOG.md
-          git commit -m "Release $RELEASE with the skill and license from Hronaut $TAG"
+          git add plugins/hronaut LICENSE CHANGELOG.md
+          git commit -m "Release $VERSION with the skill and license from Hronaut $TAG"
           git push origin HEAD:main

@@ -126,6 +126,24 @@ describe('the Claude Code plugin', () => {
   })
 })
 
+describe('the Codex marketplace', () => {
+  it('sends Codex to the Codex plugin’s own repository', async () => {
+    // Codex reads .agents/plugins/marketplace.json before .claude-plugin/marketplace.json. Without it,
+    // `codex plugin marketplace add hronaut/hronaut-claude-plugin` would install this plugin, whose address is a Claude
+    // Code option Codex can't fill in.
+    expect(await json('.agents/plugins/marketplace.json')).toEqual({
+      name: 'hronaut',
+      interface: { displayName: 'Hronaut' },
+      plugins: [{
+        name: 'hronaut',
+        source: { source: 'git-subdir', url: 'https://github.com/hronaut/hronaut-codex-plugin.git', path: 'plugins/hronaut' },
+        policy: { installation: 'AVAILABLE', authentication: 'ON_INSTALL' },
+        category: 'Developer Tools'
+      }]
+    })
+  })
+})
+
 /** The plugin's headersHelper command as Claude Code runs it, with the plugin's folder put in. */
 function headersHelperCommand(): string {
   return HEADERS_HELPER.replaceAll('${CLAUDE_PLUGIN_ROOT}', PLUGIN_ROOT)
