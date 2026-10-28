@@ -149,7 +149,8 @@ describe('the Codex plugin', () => {
     expect(helper.split('" || ')[0]).not.toMatch(/(?<!\\)\$/)
     expect(helper.split('" || ')[1]).not.toMatch(/\$\(|`/)
     // Hronaut writes tokens matching /^[A-Za-z0-9_-]{32,}$/ (TOKEN_PATTERN in the app); the daily sync checks that it still does.
-    expect(helper).toContain('case \\$t in *[!A-Za-z0-9_-]*) t= ;; esac; if [ \\${#t} -ge 32 ]')
+    // The sh part lists the characters: macOS's sh (bash 3.2) matches a range such as a-z by the locale's collation, so é falls inside.
+    expect(helper).toContain('case \\$t in *[!ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-]*) t= ;; esac; if [ \\${#t} -ge 32 ]')
     expect(helper).toContain("$t -cmatch '^[A-Za-z0-9_-]{32,}\\z'")
     expect(helper).toContain(`cd ~/Library/Application\\ Support/${PROFILE_FOLDER} || cd ~/.config/${PROFILE_FOLDER}`)
     expect(helper).toContain(`Join-Path $env:APPDATA '${PROFILE_FOLDER}\\mcp-token'`)
