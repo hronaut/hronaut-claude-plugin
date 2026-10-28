@@ -319,8 +319,9 @@ describe.runIf(codexCli() !== undefined)('the Codex plugin in Codex', { timeout:
 
   afterEach(async () => {
     await stopServer()
-    await rm(home, { recursive: true, force: true })
-  })
+    // Windows keeps the session's folder busy for a moment after Codex exits.
+    await rm(home, { recursive: true, force: true, maxRetries: 10, retryDelay: 250 })
+  }, 60_000)
 
   it('installs from the repository’s marketplace and connects with the token from Hronaut’s profile', async () => {
     const profile = process.platform === 'win32'
