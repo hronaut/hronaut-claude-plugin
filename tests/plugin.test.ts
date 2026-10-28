@@ -59,11 +59,20 @@ describe('the Claude Code plugin', () => {
     expect((await readFile(join('plugins/hronaut', plugin.icon))).subarray(1, 4).toString()).toBe('PNG')
   })
 
-  it('names the version of its newest changelog entry, so installed plugins update with each change, and its license', async () => {
+  it('names the version of its newest changelog entry, so installed plugins update with each change', async () => {
     const plugin = await json<PluginManifest>('plugins/hronaut/.claude-plugin/plugin.json')
     expect((await readFile('CHANGELOG.md', 'utf8')).match(/^## (\S+)/m)?.[1]).toBe(plugin.version)
+  })
+
+  it('is MIT-licensed, skill included, unlike the Hronaut app', async () => {
+    const license = await readFile('LICENSE', 'utf8')
+    expect(license).toMatch(/^MIT License\r?\n\r?\nCopyright \(c\) 2026 Hronaut\r?\n/)
     // Claude Code installs only the plugin's folder, so the license it names is a copy there.
-    expect(await readFile('plugins/hronaut/LICENSE', 'utf8')).toBe(await readFile('LICENSE', 'utf8'))
+    expect(await readFile('plugins/hronaut/LICENSE', 'utf8')).toBe(license)
+    expect((await json<{ license: string }>('plugins/hronaut/.claude-plugin/plugin.json')).license).toBe('MIT')
+    expect((await json<{ license: string }>('package.json')).license).toBe('MIT')
+    // The daily sync copies the skill from the app, whose copy names the app's license, and marks this copy MIT.
+    expect(await readFile('plugins/hronaut/skills/hronaut/SKILL.md', 'utf8')).toMatch(/^---\r?\n(?:(?!---)[^\n]*\n)*license: MIT\r?\n/)
   })
 
   it('connects to the local endpoint with the owner token, from the token file or HRONAUT_MCP_TOKEN', async () => {

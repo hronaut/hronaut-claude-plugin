@@ -20,8 +20,8 @@ itself lives in [hronaut/hronaut](https://github.com/hronaut/hronaut); report pr
 - `.agents/plugins/marketplace.json`: what Codex reads when someone adds this repository as a Codex marketplace. It
   lists the Codex plugin from hronaut/hronaut-codex-plugin.
 - `tests/`: checks of the manifests and of the headers helpers on Linux, macOS and Windows.
-- `.github/workflows/sync.yml`: once a day copies the Hronaut skill and license from the newest Hronaut release,
-  and releases a new patch version when they changed.
+- `.github/workflows/sync.yml`: once a day copies the Hronaut skill from the newest Hronaut release, and releases
+  a new patch version when it changed.
 
 ## Development
 
@@ -38,4 +38,7 @@ directory adds.
 
 ## License
 
-Source-available under the [Hronaut Subscription and Trial License](LICENSE).
+The plugin, including its copy of the Hronaut skill, is open source under the [MIT License](LICENSE). Hronaut itself,
+the app it connects to, is a separate product under the
+[Hronaut Subscription and Trial License](https://github.com/hronaut/hronaut/blob/main/LICENSE): a 10-day trial, then
+a subscription. [What you can do without paying](https://hronaut.dev/#faq).

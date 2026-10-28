@@ -3,6 +3,11 @@
 Each entry is a plugin version. Claude Code updates installed plugins to the version in
 `plugins/hronaut/.claude-plugin/plugin.json`, so every change that reaches users bumps it and adds an entry here.
 
+## 1.0.1 - 2026-10-28
+
+- The plugin is now open source under the MIT License, including its copy of the Hronaut skill. Hronaut itself, the
+  app the plugin connects to, keeps its Subscription and Trial License.
+
 ## 1.0.0 - 2026-10-28
 
 - The plugin moved here from hronaut/hronaut, where it shipped with Hronaut up to 3.12, and now has its own versions.

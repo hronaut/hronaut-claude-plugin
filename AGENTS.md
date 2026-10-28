@@ -8,14 +8,20 @@ Codex reads `.agents/plugins/marketplace.json` before `.claude-plugin/marketplac
 plugin from hronaut/hronaut-codex-plugin. Without it, `codex plugin marketplace add hronaut/hronaut-claude-plugin`
 would install this plugin with the literal address `${user_config.mcp_url}`, a Claude Code option Codex can't fill in.
 
+## License
+
+This repository, the plugin and the plugin's copy of the Hronaut skill are MIT-licensed; `plugins/hronaut/LICENSE` is a
+copy of `LICENSE`, since Claude Code installs only the plugin's folder. The Hronaut app is not: it stays under its
+Subscription and Trial License in hronaut/hronaut. Don't copy app code here.
+
 ## Versions
 
 - Claude Code updates installed plugins only when `version` in `plugins/hronaut/.claude-plugin/plugin.json` changes.
   Bump it for every change under `plugins/hronaut/` and add a `## <version> - <date>` entry at the top of
   `CHANGELOG.md`; a test checks that they match.
-- The `Sync from Hronaut` workflow runs daily. It copies `skills/hronaut/SKILL.md` and `LICENSE` from the newest
-  hronaut/hronaut release (never from its main branch, which may describe tools not yet released), bumps the patch
-  version, tests and pushes to main. It fails instead when the app's token format (`TOKEN_PATTERN` in
+- The `Sync from Hronaut` workflow runs daily. It copies `skills/hronaut/SKILL.md` from the newest hronaut/hronaut
+  release (never from its main branch, which may describe tools not yet released), with `license: MIT` in its
+  frontmatter, bumps the patch version, tests and pushes to main. It fails instead when the app's token format (`TOKEN_PATTERN` in
   `src/main/mcp-token-store.ts`), default MCP port (`DEFAULT_MCP_PORT` in `src/shared/mcp-port.ts`) or package name
   (the profile folder) no longer match what the helpers assume; update the helpers and tests, then run it by hand.
   GitHub turns scheduled workflows off after 60 days without activity in the repository; turn it back on in Actions.
