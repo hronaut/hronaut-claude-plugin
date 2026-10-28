@@ -1,4 +1,4 @@
-import { execFile, spawn } from 'node:child_process'
+import { type ChildProcess, execFile, spawn, spawnSync } from 'node:child_process'
 import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import { createRequire } from 'node:module'
@@ -262,6 +262,16 @@ describe.runIf(process.platform === 'win32')('the Codex plugin’s headers helpe
   })
 })
 
+/** Stops a Codex CLI process and waits until Codex has exited, so its files in CODEX_HOME are closed. */
+async function stop(cli: ChildProcess): Promise<void> {
+  if (cli.exitCode !== null || cli.signalCode !== null) return
+  const exited = new Promise((resolve) => cli.once('exit', resolve))
+  // The CLI's script runs Codex's own binary. It passes signals on elsewhere, but Windows ends the script alone.
+  if (process.platform === 'win32') spawnSync('taskkill', ['/pid', String(cli.pid), '/t', '/f'])
+  else cli.kill()
+  await exited
+}
+
 /** The Codex CLI, when it is installed next to this repository's packages, as CI does. */
 function codexCli(): string | undefined {
   try {
@@ -345,7 +355,7 @@ describe.runIf(codexCli() !== undefined)('the Codex plugin in Codex', { timeout:
         await new Promise((resolve) => setTimeout(resolve, 250))
       }
     } finally {
-      session.kill()
+      await stop(session)
     }
     expect(requests.map((request) => request.rpc)).toEqual(expect.arrayContaining(['initialize', 'tools/list']))
     expect(requests.every((request) => request.authorization === `Bearer ${TOKEN}`)).toBe(true)
