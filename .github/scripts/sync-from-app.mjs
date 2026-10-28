@@ -1,13 +1,10 @@
-// Copies the Hronaut skill and license from the newest hronaut/hronaut release into the Claude Code and Codex plugins
-// and, for each plugin where either changed, bumps its patch version and adds a changelog entry. Fails when the app no
-// longer matches what the headers helpers assume. Writes `changed`, `tag` and `release` to $GITHUB_OUTPUT when it is set.
+// Copies the Hronaut skill and license from the newest hronaut/hronaut release into the plugin and, when either
+// changed, bumps the plugin's patch version and adds a changelog entry. Fails when the app no longer matches what the
+// headers helpers assume. Writes `changed`, `tag` and `version` to $GITHUB_OUTPUT when it is set.
 import { appendFile, readFile, writeFile } from 'node:fs/promises'
 
 const APP = 'hronaut/hronaut'
-const PLUGINS = [
-  { name: 'Claude Code plugin', folder: 'plugins/hronaut', manifest: 'plugins/hronaut/.claude-plugin/plugin.json', changelog: 'CHANGELOG.md' },
-  { name: 'Codex plugin', folder: 'plugins/hronaut-codex', manifest: 'plugins/hronaut-codex/.codex-plugin/plugin.json', changelog: 'plugins/hronaut-codex/CHANGELOG.md' }
-]
+const MANIFEST = 'plugins/hronaut/.claude-plugin/plugin.json'
 const token = process.env.GITHUB_TOKEN
 
 async function get(url) {
@@ -37,39 +34,37 @@ if (broken.length > 0) {
   process.exit(1)
 }
 
-// Each plugin installs only its own folder, so each has a copy; the repository's LICENSE is the same text.
 const copies = [
-  ['skills/hronaut/SKILL.md', 'skills/hronaut/SKILL.md', 'the Hronaut skill'],
-  ['LICENSE', 'LICENSE', 'the license']
+  ['skills/hronaut/SKILL.md', ['plugins/hronaut/skills/hronaut/SKILL.md'], 'the Hronaut skill'],
+  ['LICENSE', ['LICENSE', 'plugins/hronaut/LICENSE'], 'the license']
 ]
-const texts = new Map()
-for (const [source] of copies) texts.set(source, await file(source))
-if ((await readFile('LICENSE', 'utf8')) !== texts.get('LICENSE')) await writeFile('LICENSE', texts.get('LICENSE'))
-
-const releases = []
-for (const plugin of PLUGINS) {
-  const updated = []
-  for (const [source, target, name] of copies) {
-    const path = `${plugin.folder}/${target}`
-    if ((await readFile(path, 'utf8')) !== texts.get(source)) {
-      await writeFile(path, texts.get(source))
-      updated.push(name)
+const updated = []
+for (const [source, targets, name] of copies) {
+  const text = await file(source)
+  let changed = false
+  for (const target of targets) {
+    if ((await readFile(target, 'utf8')) !== text) {
+      await writeFile(target, text)
+      changed = true
     }
   }
-  if (updated.length === 0) continue
-  const manifest = await readFile(plugin.manifest, 'utf8')
-  const version = JSON.parse(manifest).version
-  const [major, minor, patch] = version.split('.').map(Number)
-  const next = `${major}.${minor}.${patch + 1}`
-  await writeFile(plugin.manifest, manifest.replace(`"version": "${version}"`, `"version": "${next}"`))
-  const changelog = await readFile(plugin.changelog, 'utf8')
-  const entry = `## ${next} - ${new Date().toISOString().slice(0, 10)}\n\n- Updates ${updated.join(' and ')} to Hronaut ${tag.slice(1)}.\n\n`
-  const at = changelog.indexOf('\n## ') + 1
-  await writeFile(plugin.changelog, at > 0 ? changelog.slice(0, at) + entry + changelog.slice(at) : `${changelog.trimEnd()}\n\n${entry}`)
-  releases.push(`${plugin.name} ${next}`)
+  if (changed) updated.push(name)
 }
 
-console.log(releases.length > 0 ? `Updated from ${tag}: ${releases.join(', ')}.` : `Up to date with ${tag}.`)
+let version = JSON.parse(await readFile(MANIFEST, 'utf8')).version
+if (updated.length > 0) {
+  const [major, minor, patch] = version.split('.').map(Number)
+  const next = `${major}.${minor}.${patch + 1}`
+  const manifest = await readFile(MANIFEST, 'utf8')
+  await writeFile(MANIFEST, manifest.replace(`"version": "${version}"`, `"version": "${next}"`))
+  version = next
+  const changelog = await readFile('CHANGELOG.md', 'utf8')
+  const entry = `## ${version} - ${new Date().toISOString().slice(0, 10)}\n\n- Updates ${updated.join(' and ')} to Hronaut ${tag.slice(1)}.\n\n`
+  const at = changelog.indexOf('\n## ') + 1
+  await writeFile('CHANGELOG.md', at > 0 ? changelog.slice(0, at) + entry + changelog.slice(at) : `${changelog.trimEnd()}\n\n${entry}`)
+}
+
+console.log(updated.length > 0 ? `Updated ${updated.join(' and ')} from ${tag}; plugin version ${version}.` : `Up to date with ${tag}.`)
 if (process.env.GITHUB_OUTPUT) {
-  await appendFile(process.env.GITHUB_OUTPUT, `changed=${releases.length > 0}\ntag=${tag}\nrelease=${releases.join(' and ')}\n`)
+  await appendFile(process.env.GITHUB_OUTPUT, `changed=${updated.length > 0}\ntag=${tag}\nversion=${version}\n`)
 }
