@@ -96,7 +96,8 @@ describe('the Claude Code plugin', () => {
   it('keeps its helpers runnable when Git for Windows checks them out', async () => {
     // Git for Windows turns line endings into CRLF by default, which sh can't run. Anthropic's plugin directory doesn't
     // validate a repository whose attributes rewrite file contents, so Git leaves the helpers as they are committed.
-    const attributes = await readFile('.gitattributes', 'utf8')
+    // Git for Windows checks this file itself out with CRLF.
+    const attributes = (await readFile('.gitattributes', 'utf8')).replaceAll('\r\n', '\n')
     expect(attributes).toContain('plugins/hronaut/scripts/*.sh -text\n')
     expect(attributes).toContain('plugins/hronaut/scripts/*.cmd -text\n')
     expect(attributes).not.toMatch(/\b(eol|filter|export-ignore|export-subst|working-tree-encoding|ident)\b/)
@@ -121,7 +122,7 @@ describe('the Claude Code plugin', () => {
 
   it('ships the Hronaut skill', async () => {
     // The daily sync copies it from the newest Hronaut release, whose skills/hronaut/SKILL.md is the source.
-    expect(await readFile('plugins/hronaut/skills/hronaut/SKILL.md', 'utf8')).toMatch(/^---\nname: hronaut\n/)
+    expect(await readFile('plugins/hronaut/skills/hronaut/SKILL.md', 'utf8')).toMatch(/^---\r?\nname: hronaut\r?\n/)
   })
 })
 
@@ -241,7 +242,8 @@ describe.skipIf(process.platform === 'win32')('the plugin’s headers helper', (
 })
 
 // Claude Code runs the command with cmd.exe on Windows, where sh is on the PATH only for some installs of Git.
-describe.runIf(process.platform === 'win32')('the plugin’s headers helper on Windows', () => {
+// Each run starts Windows PowerShell, which takes seconds on a CI runner.
+describe.runIf(process.platform === 'win32')('the plugin’s headers helper on Windows', { timeout: 60_000 }, () => {
   let home: string
 
   beforeEach(async () => {
