@@ -153,7 +153,10 @@ describe('the Codex plugin', () => {
     expect(helper).toContain('case \\$t in *[!ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-]*) t= ;; esac; if [ \\${#t} -ge 32 ]')
     expect(helper).toContain("$t -cmatch '^[A-Za-z0-9_-]{32,}\\z'")
     expect(helper).toContain(`cd ~/Library/Application\\ Support/${PROFILE_FOLDER} || cd ~/.config/${PROFILE_FOLDER}`)
-    expect(helper).toContain(`Join-Path $env:APPDATA '${PROFILE_FOLDER}\\mcp-token'`)
+    expect(helper).toContain(`$env:APPDATA + '\\${PROFILE_FOLDER}\\mcp-token'`)
+    // Only .NET calls and operators: a cmdlet such as Join-Path makes Windows PowerShell load its module first, which took
+    // half a minute on a CI runner, past the 10 seconds Codex gives the helper.
+    expect(helper.split('" || ')[1]).not.toMatch(/\b[A-Z][a-z]+-[A-Z][A-Za-z]+\b/)
   })
 })
 
@@ -209,8 +212,7 @@ describe.skipIf(process.platform === 'win32')('the Codex plugin’s headers help
   })
 })
 
-// Codex runs the helper with `cmd.exe /Q /D /C "<command>"` on Windows. Each run starts Windows PowerShell, which takes
-// seconds on a CI runner.
+// Codex runs the helper with `cmd.exe /Q /D /C "<command>"` on Windows. Each run starts Windows PowerShell.
 describe.runIf(process.platform === 'win32')('the Codex plugin’s headers helper on Windows', { timeout: 60_000 }, () => {
   let home: string
   let session: string
@@ -233,6 +235,7 @@ describe.runIf(process.platform === 'win32')('the Codex plugin’s headers helpe
     for (const name of Object.keys(env)) if (name.toUpperCase() === 'APPDATA') delete env[name]
     env.APPDATA = join(home, 'Roaming')
     const command = `"${await headersHelper()}"`
+    const started = Date.now()
     const stdout = await new Promise<string>((resolve, reject) => {
       const child = spawn(process.env.ComSpec ?? 'cmd.exe', ['/Q', '/D', '/C', command], { cwd: session, env, windowsVerbatimArguments: true })
       let output = ''
@@ -240,6 +243,8 @@ describe.runIf(process.platform === 'win32')('the Codex plugin’s headers helpe
       child.on('error', reject)
       child.on('close', (code) => code === 0 ? resolve(output) : reject(new Error(`exit ${code}: ${output}`)))
     })
+    // Codex stops the helper after 10 seconds.
+    expect(Date.now() - started).toBeLessThan(8_000)
     // The sh part fails in cmd.exe before it runs, even where Git's sh is on the PATH, and leaves nothing behind.
     expect(await readdir(session)).toEqual([])
     return JSON.parse(stdout)
