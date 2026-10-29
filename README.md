@@ -1,7 +1,9 @@
 # Hronaut for Claude Code
 
-The Claude Code plugin for [Hronaut](https://hronaut.dev), a visible desktop browser your coding agent drives over
-MCP. It adds Hronaut's MCP server and the Hronaut skill. Start Hronaut, then in Claude Code:
+**Give your coding agent its own browser. Keep yours.**
+
+The Claude Code plugin for [Hronaut](https://hronaut.dev), a visible desktop browser for coding agents, with a
+separate workspace for each project. It adds Hronaut's MCP server and the Hronaut skill. Start Hronaut, then in Claude Code:
 
 ```text
 /plugin marketplace add hronaut/hronaut-claude-plugin
