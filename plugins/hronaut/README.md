@@ -28,11 +28,12 @@ On Claude Code 2.1.275 or later, `/plugin install hronaut --marketplace hronaut/
 
 ## How it connects
 
-The plugin connects to the address in its **Hronaut MCP address** option, `http://127.0.0.1:47812/mcp` by default, which is Hronaut's local endpoint. Each time it connects, `scripts/hronaut-headers.sh` reads the owner token from the token file in Hronaut's profile and passes it to Claude Code's connection, so the token is never written to Claude Code's settings or shown to the agent. It passes the token only when the address is a port on this computer (`127.0.0.1`, `localhost` or `[::1]`). On Windows, where `sh` is often not on the PATH, `scripts/hronaut-headers.cmd` does the same with Windows PowerShell. Hronaut accepts the connection without a token while its MCP authentication is off. The plugin sends nothing anywhere else and stores nothing.
+The plugin starts [`@hronaut/mcp`](https://www.npmjs.com/package/@hronaut/mcp) with `npx`, so it needs Node.js 20 or later. That small open-source program relays Claude Code's MCP messages to Hronaut's local endpoint, `http://127.0.0.1:47812/mcp`. To each request it adds the owner token from the token file in Hronaut's profile, so the token is never written to Claude Code's settings or shown to the agent. It connects only to this computer, sends nothing anywhere else and stores nothing. Hronaut accepts the connection without a token while its MCP authentication is off.
 
-- Changed Hronaut's MCP port? Change the port in the plugin's **Hronaut MCP address** option, in `/config`.
+- Changed Hronaut's MCP port? Set `HRONAUT_MCP_PORT` for Claude Code as you do for Hronaut.
 - Hronaut uses another profile folder? Set `HRONAUT_USER_DATA_DIR` as you do for Hronaut.
-- Start Hronaut with `HRONAUT_MCP_TOKEN`? Give Claude Code the same variable. Hronaut then uses it instead of its token file, so delete the profile's `mcp-token` file if an earlier start left one, since the plugin sends the file's token first. Claude Code sends that variable to the address in the plugin's option, whichever it is, so keep that address on this computer.
+- Start Hronaut with `HRONAUT_MCP_TOKEN`? Give Claude Code the same variable; the plugin then sends it instead of the token file's.
+- Hronaut not running? Its tools answer with an error that says so. Start Hronaut, then reconnect in `/mcp`.
 - Added Hronaut with `claude mcp add` before? Claude Code keeps using that server, with the token it stored in its settings, instead of the plugin's. Remove it with `claude mcp remove hronaut --scope user`.
 
 Hronaut runs on your computer, so a cloud-hosted agent cannot reach it. See the [setup guide](https://hronaut.dev/setup) and the [privacy policy](https://hronaut.dev/privacy).

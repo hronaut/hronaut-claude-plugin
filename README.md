@@ -21,9 +21,9 @@ itself lives in [hronaut/hronaut](https://github.com/hronaut/hronaut); report pr
 - `plugins/hronaut/`: the plugin, exactly as Claude Code installs it and Anthropic's plugin directory lists it.
 - `.agents/plugins/marketplace.json`: what Codex reads when someone adds this repository as a Codex marketplace. It
   lists the Codex plugin from hronaut/hronaut-codex-plugin.
-- `packages/mcp/`: `@hronaut/mcp`, the stdio bridge to Hronaut's local MCP server, published to npm by the
-  `Publish @hronaut/mcp` workflow.
-- `tests/`: checks of the manifests, the headers helpers and the bridge on Linux, macOS and Windows.
+- `packages/mcp/`: `@hronaut/mcp`, the stdio bridge to Hronaut's local MCP server that the plugin starts with `npx`,
+  published to npm by the `Publish @hronaut/mcp` workflow.
+- `tests/`: checks of the manifests and the bridge on Linux, macOS and Windows.
 - `.github/workflows/sync.yml`: once a day copies the Hronaut skill from the newest Hronaut release, and releases
   a new patch version when it changed.
 

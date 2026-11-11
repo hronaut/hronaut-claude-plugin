@@ -1,6 +1,6 @@
 // Copies the Hronaut skill from the newest hronaut/hronaut release into the plugin and, when it changed, bumps the
-// plugin's patch version and adds a changelog entry. Fails when the app no longer matches what the headers helpers
-// assume. Writes `changed`, `tag` and `version` to $GITHUB_OUTPUT when it is set.
+// plugin's patch version and adds a changelog entry. Fails when the app no longer matches what the bridge
+// (packages/mcp) assumes. Writes `changed`, `tag` and `version` to $GITHUB_OUTPUT when it is set.
 import { appendFile, readFile, writeFile } from 'node:fs/promises'
 
 const APP = 'hronaut/hronaut'
@@ -19,7 +19,7 @@ const tag = JSON.parse(await get(`https://api.github.com/repos/${APP}/releases/l
 if (!/^v\d+\.\d+\.\d+$/.test(tag)) throw new Error(`Unexpected release tag ${tag}`)
 const file = (path) => get(`https://raw.githubusercontent.com/${APP}/${tag}/${path}`)
 
-// The helpers and tests hard-code these; a change in the app needs a change here first.
+// The bridge and tests hard-code these; a change in the app needs a change here first.
 const assumptions = [
   ['src/main/mcp-token-store.ts', (text) => text.includes('const TOKEN_PATTERN = /^[A-Za-z0-9_-]{32,}$/'), 'tokens match /^[A-Za-z0-9_-]{32,}$/'],
   ['src/shared/mcp-port.ts', (text) => text.includes('export const DEFAULT_MCP_PORT = 47_812'), 'the default MCP port is 47812'],
@@ -27,10 +27,10 @@ const assumptions = [
 ]
 const broken = []
 for (const [path, holds, assumption] of assumptions) {
-  if (!holds(await file(path))) broken.push(`${path} in ${APP} ${tag}: the helpers assume ${assumption}.`)
+  if (!holds(await file(path))) broken.push(`${path} in ${APP} ${tag}: the bridge assumes ${assumption}.`)
 }
 if (broken.length > 0) {
-  console.error(`${broken.join('\n')}\nUpdate the headers helpers and tests to match, then run this workflow again.`)
+  console.error(`${broken.join('\n')}\nUpdate packages/mcp and its tests to match, publish it, pin it in the plugin, then run this workflow again.`)
   process.exit(1)
 }
 
