@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # The headers helpers run under sh on Linux and macOS and through the .cmd on Windows.
+        # The bridge finds Hronaut's profile in a different place on each.
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:

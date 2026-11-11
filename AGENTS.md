@@ -6,7 +6,7 @@ hronaut/hronaut-codex-plugin.
 
 Codex reads `.agents/plugins/marketplace.json` before `.claude-plugin/marketplace.json`, so that file lists the Codex
 plugin from hronaut/hronaut-codex-plugin. Without it, `codex plugin marketplace add hronaut/hronaut-claude-plugin`
-would install this plugin with the literal address `${user_config.mcp_url}`, a Claude Code option Codex can't fill in.
+would install this Claude Code plugin instead of the Codex plugin.
 
 ## License
 
@@ -23,36 +23,31 @@ Subscription and Trial License in hronaut/hronaut. Don't copy app code here.
   release (never from its main branch, which may describe tools not yet released), with `license: MIT` in its
   frontmatter, bumps the patch version, tests and pushes to main. It fails instead when the app's token format (`TOKEN_PATTERN` in
   `src/main/mcp-token-store.ts`), default MCP port (`DEFAULT_MCP_PORT` in `src/shared/mcp-port.ts`) or package name
-  (the profile folder) no longer match what the helpers assume; update the helpers and tests, then run it by hand.
+  (the profile folder) no longer match what the bridge assumes; update `packages/mcp/src/token.js` and its tests,
+  publish the bridge, pin it in the plugin, then run the sync by hand.
   GitHub turns scheduled workflows off after 60 days without activity in the repository; turn it back on in Actions.
 
 ## The stdio bridge
 
-`packages/mcp` is `@hronaut/mcp`, a stdio MCP server with no dependencies that relays to Hronaut's local Streamable
-HTTP server at `127.0.0.1` and adds the owner token from Hronaut's profile. Anthropic's plugin directory refuses a
-headersHelper, scripts, `${ENV}` values in headers and a non-public `url` from organizations it hasn't verified, so the
-plugin is moving to `npx -y @hronaut/mcp@<version>`. Bump its version for each change, run the `Publish @hronaut/mcp`
-workflow from main (it needs the `NPM_TOKEN` secret in the `npm` environment), and only then pin the new version in
-the plugin.
+The plugin's MCP server is `npx -y @hronaut/mcp@<version>`. `packages/mcp` is `@hronaut/mcp`, a stdio MCP server with no
+dependencies that relays to Hronaut's local Streamable HTTP server at `127.0.0.1` and adds the owner token from
+Hronaut's profile, or `HRONAUT_MCP_TOKEN`, to each request. It never sends the token anywhere else.
+
+To change it: bump its version in `packages/mcp/package.json`, merge, run the `Publish @hronaut/mcp` workflow from
+main, and only then pin the new version in `plugin.json` (a test checks that the pin matches `packages/mcp`) with a
+plugin version bump. The workflow publishes with provenance through npm Trusted Publishing; the `NPM_TOKEN` secret in
+the `npm` environment is the fallback until a trusted publisher is configured on npmjs.com.
 
 ## Anthropic's plugin directory
 
 The plugin is listed in Anthropic's directory (claude.ai/directory/manage), which follows this repository's default
-branch with plugin path `plugins/hronaut` and scans every new version. Its checks go beyond
-`claude plugin validate`:
+branch with plugin path `plugins/hronaut` and scans every new version. For an organization it hasn't verified (there is
+no way to apply yet) its checks go beyond `claude plugin validate`:
 
-- A remote MCP server's `url` must be `https://`, `wss://` or a `${user_config.KEY}` reference. Hronaut's endpoint is
-  local http, so the URL is the `mcp_url` option, whose default is `http://127.0.0.1:47812/mcp`.
+- No `headersHelper`, no `${ENV}` values in headers, and a remote MCP `url` only when it is a fixed public `https://`
+  address. Hronaut's endpoint is local, which is why the plugin runs the stdio bridge instead.
+- No scripts: only Markdown, text, JSON, YAML and images in `plugins/hronaut` (a test checks the file names).
 - `.gitattributes` must not rewrite file contents (`eol`, `filter`, LFS, `export-*`, `working-tree-encoding`,
-  `ident`). The helpers are `-text`; the `.sh` is committed with LF and the `.cmd` with CRLF.
+  `ident`); the repository has none.
 - The plugin README is the listing: at least 40 words outside code blocks and at least three example prompts.
-- Reading `HRONAUT_MCP_TOKEN` and the token file, and the helper scripts, are held for a reviewer on each version.
-  That is expected; don't move the token into a `user_config` option, since the helpers read it from Hronaut's
-  profile so it is never stored in Claude Code's settings.
-
-## Headers helpers
-
-Claude Code hides variables named like a token from a headers helper, so `HRONAUT_MCP_TOKEN` is a static header in
-`plugin.json` and the helpers read only the token file. They send the token only when `CLAUDE_CODE_MCP_SERVER_URL` is a
-numbered port on `127.0.0.1`, `localhost` or `[::1]`. When testing Claude Code end to end in a cloud container, unset
-`CCR_AUTO_MODE_USER_ENV_KEYS_FACT`: with it set, Claude Code redacts every `1` in the URL it gives the helper.
+- A plugin that runs a local program for its MCP server gets a warning, not a refusal.
