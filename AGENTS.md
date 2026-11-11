@@ -26,6 +26,15 @@ Subscription and Trial License in hronaut/hronaut. Don't copy app code here.
   (the profile folder) no longer match what the helpers assume; update the helpers and tests, then run it by hand.
   GitHub turns scheduled workflows off after 60 days without activity in the repository; turn it back on in Actions.
 
+## The stdio bridge
+
+`packages/mcp` is `@hronaut/mcp`, a stdio MCP server with no dependencies that relays to Hronaut's local Streamable
+HTTP server at `127.0.0.1` and adds the owner token from Hronaut's profile. Anthropic's plugin directory refuses a
+headersHelper, scripts, `${ENV}` values in headers and a non-public `url` from organizations it hasn't verified, so the
+plugin is moving to `npx -y @hronaut/mcp@<version>`. Bump its version for each change, run the `Publish @hronaut/mcp`
+workflow from main (it needs the `NPM_TOKEN` secret in the `npm` environment), and only then pin the new version in
+the plugin.
+
 ## Anthropic's plugin directory
 
 The plugin is listed in Anthropic's directory (claude.ai/directory/manage), which follows this repository's default

@@ -1,0 +1,28 @@
+{
+  "name": "@hronaut/mcp",
+  "version": "1.0.0",
+  "description": "Connects an MCP client over stdio to Hronaut, the desktop browser for coding agents, running on this computer.",
+  "homepage": "https://hronaut.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hronaut/hronaut-claude-plugin.git",
+    "directory": "packages/mcp"
+  },
+  "bugs": "https://github.com/hronaut/hronaut/issues",
+  "license": "MIT",
+  "author": "Hronaut (https://hronaut.dev)",
+  "keywords": ["mcp", "hronaut", "browser", "claude-code", "stdio"],
+  "type": "module",
+  "bin": {
+    "hronaut-mcp": "bin/hronaut-mcp.js"
+  },
+  "exports": "./src/bridge.js",
+  "files": ["bin", "src", "README.md", "LICENSE"],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}
