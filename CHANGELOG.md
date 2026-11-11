@@ -3,6 +3,11 @@
 Each entry is a plugin version. Claude Code updates installed plugins to the version in
 `plugins/hronaut/.claude-plugin/plugin.json`, so every change that reaches users bumps it and adds an entry here.
 
+## 1.1.1 - 2026-11-11
+
+- Uses `@hronaut/mcp` 1.0.1, the first version published through npm Trusted Publishing. The bridge itself is
+  unchanged.
+
 ## 1.1.0 - 2026-11-11
 
 - The plugin now starts Hronaut's MCP server through `@hronaut/mcp`, a small open-source bridge from npm, instead of

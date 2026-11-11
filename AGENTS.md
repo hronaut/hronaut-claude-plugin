@@ -35,8 +35,8 @@ Hronaut's profile, or `HRONAUT_MCP_TOKEN`, to each request. It never sends the t
 
 To change it: bump its version in `packages/mcp/package.json`, merge, run the `Publish @hronaut/mcp` workflow from
 main, and only then pin the new version in `plugin.json` (a test checks that the pin matches `packages/mcp`) with a
-plugin version bump. The workflow publishes with provenance through npm Trusted Publishing; the `NPM_TOKEN` secret in
-the `npm` environment is the fallback until a trusted publisher is configured on npmjs.com.
+plugin version bump. The workflow publishes with provenance through npm Trusted Publishing, which trusts
+`publish-mcp.yml` in the `npm` environment of this repository; it uses no npm token.
 
 ## Anthropic's plugin directory
 
