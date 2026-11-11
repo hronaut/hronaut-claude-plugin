@@ -7,7 +7,7 @@ owner token from Hronaut's profile, so no address or token goes into the client'
 ```json
 {
   "mcpServers": {
-    "hronaut": { "command": "npx", "args": ["-y", "@hronaut/mcp@1.0.0"] }
+    "hronaut": { "command": "npx", "args": ["-y", "@hronaut/mcp@1.0.1"] }
   }
 }
 ```

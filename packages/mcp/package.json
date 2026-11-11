@@ -1,6 +1,6 @@
 {
   "name": "@hronaut/mcp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Connects an MCP client over stdio to Hronaut, the desktop browser for coding agents, running on this computer.",
   "homepage": "https://hronaut.dev",
   "repository": {
