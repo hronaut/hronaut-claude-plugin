@@ -1,7 +1,7 @@
 {
   "name": "hronaut",
   "displayName": "Hronaut",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Give your coding agent its own browser. Keep yours. Connects your agent to Hronaut, a visible desktop browser for coding agents, with a separate workspace for each project. Requires the Hronaut app (10-day free trial at hronaut.dev).",
   "author": {
     "name": "Hronaut",

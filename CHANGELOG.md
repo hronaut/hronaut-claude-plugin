@@ -3,6 +3,12 @@
 Each entry is a plugin version. Claude Code updates installed plugins to the version in
 `plugins/hronaut/.claude-plugin/plugin.json`, so every change that reaches users bumps it and adds an entry here.
 
+## 1.2.0 - 2026-11-11
+
+- New: `hronaut-skill`, the Hronaut skill without Hronaut's MCP server, for Anthropic's plugin directory, which lists
+  a local MCP server only from organizations it has verified. The `hronaut` plugin from this marketplace is unchanged
+  and still connects the MCP server for you.
+
 ## 1.1.1 - 2026-11-11
 
 - Uses `@hronaut/mcp` 1.0.1, the first version published through npm Trusted Publishing. The bridge itself is

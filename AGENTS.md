@@ -17,11 +17,12 @@ Subscription and Trial License in hronaut/hronaut. Don't copy app code here.
 ## Versions
 
 - Claude Code updates installed plugins only when `version` in `plugins/hronaut/.claude-plugin/plugin.json` changes.
-  Bump it for every change under `plugins/hronaut/` and add a `## <version> - <date>` entry at the top of
+  Bump it, and the same `version` in `plugins/hronaut-skill/.claude-plugin/plugin.json`, for every change under
+  `plugins/` and add a `## <version> - <date>` entry at the top of
   `CHANGELOG.md`; a test checks that they match.
 - The `Sync from Hronaut` workflow runs daily. It copies `skills/hronaut/SKILL.md` from the newest hronaut/hronaut
   release (never from its main branch, which may describe tools not yet released), with `license: MIT` in its
-  frontmatter, bumps the patch version, tests and pushes to main. It fails instead when the app's token format (`TOKEN_PATTERN` in
+  frontmatter, into both plugins, bumps the patch version, tests and pushes to main. It fails instead when the app's token format (`TOKEN_PATTERN` in
   `src/main/mcp-token-store.ts`), default MCP port (`DEFAULT_MCP_PORT` in `src/shared/mcp-port.ts`) or package name
   (the profile folder) no longer match what the bridge assumes; update `packages/mcp/src/token.js` and its tests,
   publish the bridge, pin it in the plugin, then run the sync by hand.
@@ -40,14 +41,15 @@ plugin version bump. The workflow publishes with provenance through npm Trusted 
 
 ## Anthropic's plugin directory
 
-The plugin is listed in Anthropic's directory (claude.ai/directory/manage), which follows this repository's default
-branch with plugin path `plugins/hronaut` and scans every new version. For an organization it hasn't verified (there is
-no way to apply yet) its checks go beyond `claude plugin validate`:
+The directory (claude.ai/directory/manage) lists `plugins/hronaut-skill`, which follows this repository's default
+branch and is scanned at every new version. For an organization it hasn't verified (there is no way to apply yet) it
+refuses any local MCP server, stdio included, so that plugin is the full one without `mcpServers`: the same skill,
+license, icon and listing fields, at the same version (tests check this). Its README is the listing and tells users how
+to connect Hronaut's tools. Other checks beyond `claude plugin validate`:
 
-- No `headersHelper`, no `${ENV}` values in headers, and a remote MCP `url` only when it is a fixed public `https://`
-  address. Hronaut's endpoint is local, which is why the plugin runs the stdio bridge instead.
-- No scripts: only Markdown, text, JSON, YAML and images in `plugins/hronaut` (a test checks the file names).
+- No `headersHelper`, no `${ENV}` values in headers, and no scripts: only Markdown, text, JSON, YAML and images.
 - `.gitattributes` must not rewrite file contents (`eol`, `filter`, LFS, `export-*`, `working-tree-encoding`,
   `ident`); the repository has none.
-- The plugin README is the listing: at least 40 words outside code blocks and at least three example prompts.
-- A plugin that runs a local program for its MCP server gets a warning, not a refusal.
+- The listing README needs at least 40 words outside code blocks and at least three example prompts.
+
+When the organization is verified, the directory can list `plugins/hronaut` instead.
