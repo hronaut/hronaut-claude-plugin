@@ -88,6 +88,36 @@ describe('the Claude Code plugin', () => {
   })
 })
 
+describe('the skill-only plugin for Anthropic’s plugin directory', () => {
+  // The directory lists a local MCP server only from organizations it has verified, so it lists this copy of the plugin
+  // (path plugins/hronaut-skill), which has the skill and no MCP server. The full plugin stays in the marketplace.
+  it('is the full plugin without its MCP server, at the same version', async () => {
+    const full = await json<Record<string, unknown>>('plugins/hronaut/.claude-plugin/plugin.json')
+    const skillOnly = await json<Record<string, unknown>>('plugins/hronaut-skill/.claude-plugin/plugin.json')
+    expect(skillOnly.name).toBe('hronaut-skill')
+    expect(skillOnly.mcpServers).toBeUndefined()
+    expect(skillOnly.version).toBe(full.version)
+    for (const key of ['displayName', 'author', 'homepage', 'repository', 'license', 'privacyPolicyUrl', 'termsOfServiceUrl', 'documentationUrl', 'supportUrl', 'icon', 'keywords']) {
+      expect(skillOnly[key]).toEqual(full[key])
+    }
+  })
+
+  it('ships the same skill, license and icon as the full plugin', async () => {
+    for (const file of ['skills/hronaut/SKILL.md', 'LICENSE', '.claude-plugin/icon.png']) {
+      expect(await readFile(join('plugins/hronaut-skill', file))).toEqual(await readFile(join('plugins/hronaut', file)))
+    }
+    const files = (await readdir('plugins/hronaut-skill', { recursive: true, withFileTypes: true })).filter((entry) => entry.isFile())
+    for (const file of files) expect(file.name).toMatch(LISTED_FILE)
+  })
+
+  it('has a listing README that says how to connect Hronaut’s tools', async () => {
+    const readme = await readFile('plugins/hronaut-skill/README.md', 'utf8')
+    expect(readme.replace(/```[\s\S]*?```/g, '').split(/\s+/).filter(Boolean).length).toBeGreaterThanOrEqual(40)
+    expect(readme.match(/^- "/gm)?.length).toBeGreaterThanOrEqual(3)
+    expect(readme).toContain('/plugin install hronaut@hronaut')
+  })
+})
+
 describe('the Codex marketplace', () => {
   it('sends Codex to the Codex plugin’s own repository', async () => {
     // Codex reads .agents/plugins/marketplace.json before .claude-plugin/marketplace.json. Without it,

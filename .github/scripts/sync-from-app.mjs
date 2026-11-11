@@ -43,20 +43,27 @@ function asMit(skill) {
   return licensed + skill.slice(end)
 }
 
-const SKILL = 'plugins/hronaut/skills/hronaut/SKILL.md'
+// The full plugin and the skill-only one for Anthropic's plugin directory carry the same copy.
+const SKILLS = ['plugins/hronaut/skills/hronaut/SKILL.md', 'plugins/hronaut-skill/skills/hronaut/SKILL.md']
 const updated = []
 const skill = asMit(await file('skills/hronaut/SKILL.md'))
-if ((await readFile(SKILL, 'utf8')) !== skill) {
-  await writeFile(SKILL, skill)
-  updated.push('the Hronaut skill')
+let skillChanged = false
+for (const path of SKILLS) {
+  if ((await readFile(path, 'utf8')) !== skill) {
+    await writeFile(path, skill)
+    skillChanged = true
+  }
 }
+if (skillChanged) updated.push('the Hronaut skill')
 
 let version = JSON.parse(await readFile(MANIFEST, 'utf8')).version
 if (updated.length > 0) {
   const [major, minor, patch] = version.split('.').map(Number)
   const next = `${major}.${minor}.${patch + 1}`
-  const manifest = await readFile(MANIFEST, 'utf8')
-  await writeFile(MANIFEST, manifest.replace(`"version": "${version}"`, `"version": "${next}"`))
+  for (const path of [MANIFEST, 'plugins/hronaut-skill/.claude-plugin/plugin.json']) {
+    const manifest = await readFile(path, 'utf8')
+    await writeFile(path, manifest.replace(`"version": "${version}"`, `"version": "${next}"`))
+  }
   version = next
   const changelog = await readFile('CHANGELOG.md', 'utf8')
   const entry = `## ${version} - ${new Date().toISOString().slice(0, 10)}\n\n- Updates ${updated.join(' and ')} to Hronaut ${tag.slice(1)}.\n\n`

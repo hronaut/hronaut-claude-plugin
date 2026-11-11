@@ -18,7 +18,8 @@ itself lives in [hronaut/hronaut](https://github.com/hronaut/hronaut); report pr
 ## Repository layout
 
 - `.claude-plugin/marketplace.json`: the marketplace `/plugin marketplace add` reads, with one plugin.
-- `plugins/hronaut/`: the plugin, exactly as Claude Code installs it and Anthropic's plugin directory lists it.
+- `plugins/hronaut/`: the plugin, exactly as Claude Code installs it from this marketplace.
+- `plugins/hronaut-skill/`: the same plugin without the MCP server, which is what Anthropic's plugin directory lists.
 - `.agents/plugins/marketplace.json`: what Codex reads when someone adds this repository as a Codex marketplace. It
   lists the Codex plugin from hronaut/hronaut-codex-plugin.
 - `packages/mcp/`: `@hronaut/mcp`, the stdio bridge to Hronaut's local MCP server that the plugin starts with `npx`,
@@ -33,6 +34,7 @@ itself lives in [hronaut/hronaut](https://github.com/hronaut/hronaut); report pr
 npm ci
 npm test
 npx --yes @anthropic-ai/claude-code plugin validate --strict plugins/hronaut
+npx --yes @anthropic-ai/claude-code plugin validate --strict plugins/hronaut-skill
 npx --yes @anthropic-ai/claude-code plugin validate --strict .
 ```
 
