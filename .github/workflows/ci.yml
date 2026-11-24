@@ -36,8 +36,8 @@ jobs:
         with:
           node-version: 24
       - name: Validate the plugin
-        run: npx --yes @anthropic-ai/claude-code@2.1.312 plugin validate --strict plugins/hronaut
+        run: npx --yes @anthropic-ai/claude-code@2.1.331 plugin validate --strict plugins/hronaut
       - name: Validate the skill-only plugin
-        run: npx --yes @anthropic-ai/claude-code@2.1.312 plugin validate --strict plugins/hronaut-skill
+        run: npx --yes @anthropic-ai/claude-code@2.1.331 plugin validate --strict plugins/hronaut-skill
       - name: Validate the marketplace
-        run: npx --yes @anthropic-ai/claude-code@2.1.312 plugin validate --strict .
+        run: npx --yes @anthropic-ai/claude-code@2.1.331 plugin validate --strict .
