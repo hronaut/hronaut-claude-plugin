@@ -31,8 +31,8 @@ jobs:
         run: npm ci && npm test
       - if: steps.sync.outputs.changed == 'true'
         run: |
-          npx --yes @anthropic-ai/claude-code@2.1.312 plugin validate --strict plugins/hronaut
-          npx --yes @anthropic-ai/claude-code@2.1.312 plugin validate --strict plugins/hronaut-skill
+          npx --yes @anthropic-ai/claude-code@2.1.331 plugin validate --strict plugins/hronaut
+          npx --yes @anthropic-ai/claude-code@2.1.331 plugin validate --strict plugins/hronaut-skill
       - if: steps.sync.outputs.changed == 'true'
         env:
           TAG: ${{ steps.sync.outputs.tag }}
