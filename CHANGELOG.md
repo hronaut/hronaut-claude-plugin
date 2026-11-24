@@ -3,6 +3,10 @@
 Each entry is a plugin version. Claude Code updates installed plugins to the version in
 `plugins/hronaut/.claude-plugin/plugin.json`, so every change that reaches users bumps it and adds an entry here.
 
+## 1.2.1 - 2026-11-24
+
+- Updates the Hronaut skill to Hronaut 3.14.35.
+
 ## 1.2.0 - 2026-11-11
 
 - New: `hronaut-skill`, the Hronaut skill without Hronaut's MCP server, for Anthropic's plugin directory, which lists

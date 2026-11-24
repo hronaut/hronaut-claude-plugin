@@ -1,7 +1,7 @@
 {
   "name": "hronaut-skill",
   "displayName": "Hronaut",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Give your coding agent its own browser. Keep yours. Teaches your agent to use Hronaut, a visible desktop browser for coding agents, with a separate workspace for each project. Add Hronaut's MCP server from the Hronaut app. Requires the Hronaut app (10-day free trial at hronaut.dev).",
   "author": {
     "name": "Hronaut",
